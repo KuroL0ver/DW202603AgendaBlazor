@@ -1,0 +1,69 @@
+@page "/contactos/editar/{Id:int}"
+
+<h3 class="mb-4">Editar Contacto</h3>
+
+@if (Cargando)
+{
+    <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Cargando...</span>
+    </div>
+}
+else if (Contacto == null)
+{
+    <div class="alert alert-danger">Contacto no encontrado.</div>
+}
+else if (!string.IsNullOrEmpty(ErrorMessage))
+{
+    <div class="alert alert-danger">@ErrorMessage</div>
+}
+else
+{
+    <EditForm Model="Contacto" OnValidSubmit="Guardar">
+        <DataAnnotationsValidator />
+
+        <div class="card shadow-sm">
+            <div class="card-body">
+
+                <div class="mb-3">
+                    <label class="form-label">Nombre</label>
+                    <InputText class="form-control" @bind-Value="Contacto.Nombre" />
+                    <ValidationMessage For="@(() => Contacto.Nombre)" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Teléfono</label>
+                    <InputText class="form-control" @bind-Value="Contacto.Telefono" />
+                    <ValidationMessage For="@(() => Contacto.Telefono)" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Email</label>
+                    <InputText type="email" class="form-control" @bind-Value="Contacto.Email" />
+                    <ValidationMessage For="@(() => Contacto.Email)" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Tipo de contacto</label>
+                    <InputSelect TValue="int?" class="form-select" @bind-Value="Contacto.TipoContactoId">
+                        <option value="">-- Seleccione --</option>
+                        @foreach (var t in Tipos)
+                        {
+                            <option value="@t.Id">@t.Nombre</option>
+                        }
+                    </InputSelect>
+                </div>
+
+            </div>
+
+            <div class="card-footer text-end">
+                <button type="submit" class="btn btn-success">Guardar</button>
+                <button type="button" class="btn btn-danger ms-2" @onclick="Cancelar">Cancelar</button>
+            </div>
+        </div>
+    </EditForm>
+
+    @if (MensajeExito)
+    {
+        <div class="alert alert-success mt-3">Contacto actualizado correctamente.</div>
+    }
+}

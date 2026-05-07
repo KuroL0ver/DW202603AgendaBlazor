@@ -29,6 +29,7 @@ else
              <tr>
                  <th>Id</th>
                  <th>Nombre</th>
+                 <th>Tipo</th>
                  <th>Telefono</th>
                  <th>Email</th>
                  <th></th>
@@ -40,12 +41,13 @@ else
                     <tr>
                         <td>@contacto.Id</td>
                         <td>@contacto.Nombre</td>
+                        <td>@(contacto.TipoContactoDescripcion ?? "")</td>
                         <td>@contacto.Telefono</td>
                         <td>@contacto.Email</td>
                         <td>
-                            <NavLink class="btn btn-sm btn-outline-secondary me-1">
+                            <NavLink class="btn btn-sm btn-outline-secondary me-1" href="@($"/contactos/editar/{contacto.Id}")" title="Editar">
                                 <i class="bi bi-pencil-square"></i>
-                                </NavLink>
+                            </NavLink>
                  <button class="btn btn-sm btn-outline-danger">
                                 <i class="bi bi-trash3"></i>
                  </button>

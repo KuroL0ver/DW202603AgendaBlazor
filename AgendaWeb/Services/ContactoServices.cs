@@ -19,6 +19,7 @@ namespace AgendaWeb.Services
             contacto.Nombre = contactoNuevoDto.Nombre;
             contacto.Telefono = contactoNuevoDto.Telefono;
             contacto.Email = contactoNuevoDto.Email;
+            contacto.TipoContactoId = contactoNuevoDto.TipoContactoId;
 
             int registrosAfectados = await _contactoCommand.InsertarContactoAsync(contacto);
 
@@ -32,6 +33,21 @@ namespace AgendaWeb.Services
             return await _contactoCommand.EliminarContactoAsync(id);
         }
 
+        public async Task<ContactoDto?> ObtenerPorIdAsync(int id)
+        {
+            var c = await _contactoCommand.ObtenerPorIdAsync(id);
+            if (c == null) return null;
+            return new ContactoDto
+            {
+                Id = c.Id,
+                Nombre = c.Nombre,
+                Telefono = c.Telefono,
+                Email = c.Email,
+                TipoContactoDescripcion = c.TipoContactoDescripcion,
+                TipoContactoId = c.TipoContactoId
+            };
+        }
+
         public async Task<int> ActualizarContactoAsync(int id, ContactoActualizarDto contactoActualizarDto)
         {
             Contacto contacto = new Contacto
@@ -39,8 +55,14 @@ namespace AgendaWeb.Services
                 Nombre = contactoActualizarDto.Nombre,
                 Telefono = contactoActualizarDto.Telefono,
                 Email = contactoActualizarDto.Email
+                ,TipoContactoId = contactoActualizarDto.TipoContactoId
             };
             return await _contactoCommand.ActualizarContactoAsync(id, contacto);
+        }
+
+        public async Task<int> ActualizarSoloTipoContactoAsync(int id, int? tipoContactoId)
+        {
+            return await _contactoCommand.ActualizarTipoContactoAsync(id, tipoContactoId);
         }
 
         public async Task<List<ContactoDto>> ObtenerTodosAsync()
@@ -57,18 +79,12 @@ namespace AgendaWeb.Services
                     Nombre = c.Nombre,
                     Telefono = c.Telefono,
                     Email = c.Email
+                    ,TipoContactoDescripcion = c.TipoContactoDescripcion
+                
                 };
                 contactosDto.Add(contactoDto);
             }
-            // Usando LINQ para proyectar cada Contacto a ContactoDto
-            //List<ContactoDto> contactosDto = contactos.Select(
-            //    c => new ContactoDto //c conctacto y contactoDto es el nuevo objeto que se va a crear
-            //    {
-            //        Id = c.Id,
-            //        Nombre = c.Nombre,
-            //        Telefono = c.Telefono,
-            //        Email = c.Email
-            //    }).ToList();
+
 
             return contactosDto;
         }

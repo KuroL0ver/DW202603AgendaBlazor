@@ -58,33 +58,43 @@ namespace AgendaWeb.Data
             }
 
             await sqlConnection.OpenAsync();
-            await using SqlDataReader reader = await sqlCommand.ExecuteReaderAsync();
 
-            var props = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance);
-
-            if (await reader.ReadAsync())
+            try
             {
-                T item = new();
+                await using SqlDataReader reader = await sqlCommand.ExecuteReaderAsync();
 
-                for (int i = 0; i < reader.FieldCount; i++)
+                var props = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance);
+
+                if (await reader.ReadAsync())
                 {
-                    string columnName = reader.GetName(i);
+                    T item = new();
 
-                    var property = props.FirstOrDefault(p =>
-                        string.Equals(p.Name, columnName, StringComparison.OrdinalIgnoreCase));
-
-                    if (property != null && !reader.IsDBNull(i))
+                    for (int i = 0; i < reader.FieldCount; i++)
                     {
-                        object value = reader.GetValue(i);
-                        object converted = Convert.ChangeType(value, Nullable.GetUnderlyingType(property.PropertyType) ?? property.PropertyType);
-                        property.SetValue(item, converted);
+                        string columnName = reader.GetName(i);
+
+                        var property = props.FirstOrDefault(p =>
+                            string.Equals(p.Name, columnName, StringComparison.OrdinalIgnoreCase));
+
+                        if (property != null && !reader.IsDBNull(i))
+                        {
+                            object value = reader.GetValue(i);
+                            object converted = Convert.ChangeType(value, Nullable.GetUnderlyingType(property.PropertyType) ?? property.PropertyType);
+                            property.SetValue(item, converted);
+                        }
                     }
+
+                    return item;
                 }
 
-                return item;
+                return null;
             }
-
-            return null;
+            catch (SqlException ex)
+            {
+                var dbName = sqlConnection?.Database ?? "(desconocida)";
+                var cmd = sqlCommand?.CommandText ?? "(vacío)";
+                throw new InvalidOperationException($"SqlException en BD='{dbName}'; CommandText='{cmd}': {ex.Message}", ex);
+            }
         }
         public async Task<List<T>> ReaderListAsync<T>(string query, SqlParameter[] parameters = null) where T : class, new()
         {
@@ -101,35 +111,45 @@ namespace AgendaWeb.Data
             }
 
             await sqlConnection.OpenAsync();
-            await using SqlDataReader reader = await sqlCommand.ExecuteReaderAsync();
 
-            var lista = new List<T>();
-            var props = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance);
-
-            while (await reader.ReadAsync())
+            try
             {
-                T item = new();
+                await using SqlDataReader reader = await sqlCommand.ExecuteReaderAsync();
 
-                for (int i = 0; i < reader.FieldCount; i++)
+                var lista = new List<T>();
+                var props = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance);
+
+                while (await reader.ReadAsync())
                 {
-                    string columnName = reader.GetName(i);
+                    T item = new();
 
-                    var property = props.FirstOrDefault(p =>
-                        string.Equals(p.Name, columnName, StringComparison.OrdinalIgnoreCase));
-
-                    if (property != null && !reader.IsDBNull(i))
+                    for (int i = 0; i < reader.FieldCount; i++)
                     {
-                        object value = reader.GetValue(i);
-                        object converted = Convert.
-                            ChangeType(value, Nullable.GetUnderlyingType(property.PropertyType) ?? property.PropertyType);
-                        property.SetValue(item, converted);
+                        string columnName = reader.GetName(i);
+
+                        var property = props.FirstOrDefault(p =>
+                            string.Equals(p.Name, columnName, StringComparison.OrdinalIgnoreCase));
+
+                        if (property != null && !reader.IsDBNull(i))
+                        {
+                            object value = reader.GetValue(i);
+                            object converted = Convert.
+                                ChangeType(value, Nullable.GetUnderlyingType(property.PropertyType) ?? property.PropertyType);
+                            property.SetValue(item, converted);
+                        }
                     }
+
+                    lista.Add(item);
                 }
 
-                lista.Add(item);
+                return lista;
             }
-
-            return lista;
+            catch (SqlException ex)
+            {
+                var dbName = sqlConnection?.Database ?? "(desconocida)";
+                var cmd = sqlCommand?.CommandText ?? "(vacío)";
+                throw new InvalidOperationException($"SqlException en BD='{dbName}'; CommandText='{cmd}': {ex.Message}", ex);
+            }
         }
     }
 }

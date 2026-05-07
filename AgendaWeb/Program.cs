@@ -9,13 +9,13 @@ namespace AgendaWeb
     {
         public static void Main(string[] args)
         {
+            //el var builder es el que configura la entrada de la aplicación (es decir que cuando se ejecute nos cargue la página de inicio)
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
+
             builder.Services.AddRazorComponents()
                 .AddInteractiveServerComponents();
-            //Builder es un patron de diseño
-            //connectionString va después del CreateBuilder y antes del build, porque es parte de la configuración que se va a usar en la aplicación, y se obtiene de la configuración del builder.
+
 
             var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
@@ -23,15 +23,18 @@ namespace AgendaWeb
             builder.Services.AddScoped<SQLServer>(_ => new SQLServer(connectionString));
             builder.Services.AddScoped<ContactoCommand>();
             builder.Services.AddScoped<ContactoServices>();
-
+            // Registra los servicios para los tipos de contacto
+            builder.Services.AddScoped<TipoContactoCommand>();
+            builder.Services.AddScoped<TipoContactoServices>();
+            //Builder sirve para que usar una inyección de dependencias dentro de otra, para este caso en usar el SQLServer dentro de los servicios
 
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
+
             if (!app.Environment.IsDevelopment())
             {
                 app.UseExceptionHandler("/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+            https://aka.ms/aspnetcore-hsts. //Esto sirve para que el navegador sepa que es solo para https y mejore la seguridad 
                 app.UseHsts();
             }
 
