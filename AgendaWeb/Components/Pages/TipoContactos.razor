@@ -1,0 +1,85 @@
+﻿@page "/tipocontactos"
+@inject NavigationManager Nav
+@inject Data.Commands.TipoContactoCommand TipoCommand
+@inject AgendaWeb.Services.TipoContactoServices TipoContactoServices
+
+<h3>TipoContactos</h3>
+
+<NavLink class="btn btn-primary mb-3" href="tipocontactos/crear">
+    <i class="bi bi-plus-circlefill"></i> Crear Nuevo Tipo
+</NavLink>
+
+@if (CargandoTipos)
+{
+    <div>
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Cargando...</span>
+        </div>
+        Cargando Tipos...
+    </div>
+}
+@if (ListaDeTipos.Count == 0)
+{
+    <div class="alert alert-info mt-3">
+        Aun No Hay Tipos
+    </div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-sm table-hover table-striped align-middle mb-0">
+            <thead class="table-dark small">
+                <tr>
+                    <th>Id</th>
+                    <th>Nombre</th>
+                    <th>Descripcion</th>
+                    <th>Acciones</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var tipo in ListaDeTipos)
+                {
+                    <tr>
+                        <td>@tipo.Id</td>
+                        <td>@tipo.Nombre</td>
+                        <td>@tipo.Descripcion</td>
+                       
+                        
+                        <td>
+                            <NavLink class="btn btn-sm btn-outline-secondary me-1" href="@($"/tipocontactos/editar/{tipo.Id}")" title="Editar">
+                                <i class="bi bi-pencil-square"></i>
+                            </NavLink>
+                            <button class="btn btn-sm btn-outline-danger" @onclick="() => EliminarTipo(tipo.Id)">
+                                <i class="bi bi-trash3"></i>
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    @code {
+    private List<AgendaWeb.Services.TipoContactoDto> ListaDeTipos = new();
+    private bool CargandoTipos = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarTipos();
+    }
+
+    private async Task CargarTipos()
+    {
+        CargandoTipos = true;
+        ListaDeTipos = await TipoCommand.ObtenerTodosAsync();
+        CargandoTipos = false;
+    }
+
+    private async Task EliminarTipo(int id)
+    {
+        await TipoCommand.EliminarTipoContactoAsync(id);
+        await CargarTipos();
+    }
+}
+}

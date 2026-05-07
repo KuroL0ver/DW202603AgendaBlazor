@@ -59,12 +59,34 @@ namespace AgendaWeb.Data.Commands
 
         internal async Task<int> InsertarTipoContactoAsync(Entities.TipoContacto entity)
         {
-            throw new NotImplementedException();
+            string query = "INSERT INTO TiposContactos (Descripcion) VALUES (@Descripcion)";
+            var parameters = new SqlParameter[]
+            {
+                new SqlParameter("@Descripcion", (object?)entity.Descripcion ?? DBNull.Value)
+            };
+            return await _sqlServer.NonQueryAsync(query, parameters);
         }
 
         internal async Task<int> ActualizarTipoContactoAsync(int id, Entities.TipoContacto entity)
         {
-            throw new NotImplementedException();
+            string query = "UPDATE TiposContactos SET Descripcion = @Descripcion WHERE Id = @Id";
+            var parameters = new SqlParameter[]
+            {
+                new SqlParameter("@Id", id),
+                new SqlParameter("@Descripcion", (object?)entity.Descripcion ?? DBNull.Value)
+            };
+            return await _sqlServer.NonQueryAsync(query, parameters);
+        }
+
+        public async Task<Entities.TipoContacto> ObtenerPorIdAsync(int id)
+        {
+            string query = "SELECT Id, Descripcion FROM TiposContactos WHERE Id = @Id";
+            var parameters = new SqlParameter[]
+            {
+                new SqlParameter("@Id", id)
+            };
+            var tipo = await _sqlServer.ReaderAsync<Entities.TipoContacto>(query, parameters);
+            return tipo;
         }
     }
 }

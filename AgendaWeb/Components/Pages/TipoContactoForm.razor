@@ -1,0 +1,67 @@
+﻿@page "/tipocontactos/crear"
+@page "/tipocontactos/editar/{Id:int}"
+
+@inject AgendaWeb.Services.TipoContactoServices TipoContactoServices
+@inject NavigationManager Nav
+
+<h3>@Titulo</h3>
+
+<EditForm Model="tipoContacto" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+
+    <div class="mb-3">
+        <label>Nombre:</label>
+        <InputText @bind-Value="tipoContacto.Nombre" class="form-control" />
+        <ValidationMessage For="@(() => tipoContacto.Nombre)" />
+    </div>
+
+    <div class="mb-3">
+        <label>Descripción:</label>
+        <InputText @bind-Value="tipoContacto.Descripcion" class="form-control" />
+        <ValidationMessage For="@(() => tipoContacto.Descripcion)" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Guardar</button>
+    <button type="button" class="btn btn-secondary" @onclick="Cancelar">Cancelar</button>
+</EditForm>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private AgendaWeb.Services.TipoContactoDto tipoContacto = new();
+    private string Titulo = "Nuevo Tipo de Contacto";
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Id > 0) // Si viene un Id, es editar
+        {
+            Titulo = "Editar Tipo de Contacto";
+            tipoContacto = await TipoContactoServices.ObtenerPorIdAsync(Id);
+        }
+    }
+
+    private async Task Guardar()
+    {
+        if (Id > 0) // EDITAR
+        {
+            await TipoContactoServices.ActualizarTipoContactoAsync(tipoContacto);
+        }
+        else // CREAR
+        {
+            var dto = new AgendaWeb.Data.DTOS.TiposContactos.TipoContactoCrearDto
+            {
+                Nombre = tipoContacto.Nombre,
+                Descripcion = tipoContacto.Descripcion
+            };
+            await TipoContactoServices.InsertarAsync(dto);
+        }
+        
+        Nav.NavigateTo("/tipocontactos");
+    }
+
+    private void Cancelar()
+    {
+        Nav.NavigateTo("/tipocontactos");
+    }
+}
