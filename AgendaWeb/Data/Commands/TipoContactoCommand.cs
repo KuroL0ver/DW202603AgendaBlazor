@@ -77,7 +77,7 @@ namespace AgendaWeb.Data.Commands
             };
             return await _sqlServer.NonQueryAsync(query, parameters);
         }
-
+        //Se hizo un método para obtener un tipo de contacto por su id, ya que se necesita para mostrar los datos en el formulario de edición
         public async Task<Entities.TipoContacto> ObtenerPorIdAsync(int id)
         {
             string query = "SELECT Id, Descripcion FROM TiposContactos WHERE Id = @Id";

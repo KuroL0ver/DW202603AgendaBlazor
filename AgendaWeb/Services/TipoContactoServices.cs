@@ -34,6 +34,8 @@ namespace AgendaWeb.Services
         {
             return await _tipoContactoCommand.EliminarTipoContactoAsync(id);
         }
+
+        //Este método se encarga de obtener un tipo de contacto por su ID, y si lo encuentra, lo convierte a un DTO para ser utilizado en otras capas de la aplicación.
         public async Task<TipoContactoDto> ObtenerPorIdAsync(int id)
         {
             var entity = await _tipoContactoCommand.ObtenerPorIdAsync(id);
@@ -47,6 +49,7 @@ namespace AgendaWeb.Services
             };
         }
 
+        //Este se encarga de actualizar el tipo de contacto que ya existe, obtiene su ID y luego lo actualiza con los nuevos valores en el DTO sino existe no hace nada.
         public async Task ActualizarTipoContactoAsync(TipoContactoDto dto)
         {
             var entity = await _tipoContactoCommand.ObtenerPorIdAsync(dto.Id);
